@@ -42,7 +42,7 @@ function App() {
     setAnalysisResult(null);
 
     try {
-      const response = await fetch('https://5000-izt55l0jxm898njffyrhl-74b28396.manusvm.computer/api/analyze-image', {
+      const response = await fetch('https://ai-backend-m0jg.onrender.com/api/analyze-image', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -93,7 +93,7 @@ function App() {
         <div className="initial-screen">
           {/* R8it logo and text at the top center */}
           <div className="main-logo-container-horizontal-top-center">
-            <img src="/r8it-logo.png" alt="R8it Logo" className="main-logo-icon-horizontal-top-center" />
+            <img src="/camera-icon.png" alt="Camera Icon" className="main-logo-icon-horizontal-top-center" />
             <span className="main-logo-text-horizontal-top-center">R8it</span>
           </div>
           <h2>Une Photo. Avis Instantané.</h2>
