@@ -206,17 +206,23 @@ function App() {
               </div>
 
               <h3>Suggestions rapides (cliquez pour ajouter/retirer)</h3>
-              <div className="suggestions-container">
-                {analysisResult.positiveSuggestions && analysisResult.positiveSuggestions.map((s, index) => (
-                  <span key={`pos-${index}`} className="suggestion-tag positive" onClick={() => handleSuggestionClick(s)}>
-                    {s}
-                  </span>
-                ))}
-                {analysisResult.negativeSuggestions && analysisResult.negativeSuggestions.map((s, index) => (
-                  <span key={`neg-${index}`} className="suggestion-tag negative" onClick={() => handleSuggestionClick(s)}>
-                    {s}
-                  </span>
-                ))}
+              <div className="suggestions-container-two-columns">
+                <div className="suggestions-column positive-column">
+                  <h4 className="column-title positive-title">👍 Points positifs</h4>
+                  {analysisResult.positiveSuggestions && analysisResult.positiveSuggestions.slice(0, 3).map((s, index) => (
+                    <span key={`pos-${index}`} className="suggestion-tag positive" onClick={() => handleSuggestionClick(s)}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
+                <div className="suggestions-column negative-column">
+                  <h4 className="column-title negative-title">👎 Points négatifs</h4>
+                  {analysisResult.negativeSuggestions && analysisResult.negativeSuggestions.slice(0, 3).map((s, index) => (
+                    <span key={`neg-${index}`} className="suggestion-tag negative" onClick={() => handleSuggestionClick(s)}>
+                      {s}
+                    </span>
+                  ))}
+                </div>
               </div>
 
               <h3>Votre avis (modifiable)</h3>
