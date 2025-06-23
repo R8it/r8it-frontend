@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Configuration de base pour axios
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// Configuration de l'API
+const API_BASE_URL = 'https://j6h5i7c153o9.manus.space/api';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
@@ -82,7 +82,7 @@ export const authService = {
   // Connexion
   async login(email, password) {
     try {
-      const response = await api.post('/auth/login', { email, password });
+      const response = await api.post('/auth/login', { username: email, password });
       const { access_token, refresh_token, user } = response.data;
       
       // Stocker les tokens

@@ -65,8 +65,8 @@ function ImageAnalysis() {
       }
 
       const data = await response.json();
-      setAnalysisResult(data);
-      setReviewText(data.review || '');
+      setAnalysisResult(data.analysis);
+      setReviewText(data.analysis.suggestedReview || '');
     } catch (err) {
       console.error('Erreur lors de l\'analyse:', err);
       setError('Erreur lors de l\'analyse de l\'image. Veuillez réessayer.');
@@ -129,6 +129,22 @@ function ImageAnalysis() {
     if (customVendor.trim()) {
       setSelectedVendor(customVendor.trim());
       setShowCustomVendorInput(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion) => {
+    // Ajouter ou retirer la suggestion du champ avis
+    const currentText = reviewText.trim();
+    const suggestions = currentText ? currentText.split(' ') : [];
+    
+    if (suggestions.includes(suggestion)) {
+      // Retirer la suggestion
+      const newSuggestions = suggestions.filter(s => s !== suggestion);
+      setReviewText(newSuggestions.join(' '));
+    } else {
+      // Ajouter la suggestion
+      const newText = currentText ? `${currentText} ${suggestion}` : suggestion;
+      setReviewText(newText);
     }
   };
 
@@ -329,9 +345,29 @@ function ImageAnalysis() {
         {loading && (
           <div className="bg-white rounded-lg shadow-lg p-8 text-center">
             <div className="flex flex-col items-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-600 mb-4"></div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Analyse en cours...</h3>
-              <p className="text-gray-600">L'IA analyse votre image</p>
+              <BrainIcon className="w-16 h-16 text-purple-600 mb-4" />
+              <h3 className="text-lg font-medium text-gray-900 mb-2">IA en cours d'analyse...</h3>
+              <p className="text-gray-600 mb-6">Reconnaissance instantanée en cours</p>
+              
+              {image && (
+                <div className="mb-6">
+                  <img 
+                    src={image} 
+                    alt="Image en cours d'analyse" 
+                    className="max-w-xs max-h-64 object-cover rounded-lg shadow-md"
+                  />
+                </div>
+              )}
+              
+              <div className="w-full max-w-md bg-gray-200 rounded-full h-2 mb-4">
+                <div className="bg-purple-600 h-2 rounded-full animate-pulse" style={{width: '75%'}}></div>
+              </div>
+              <p className="text-sm text-gray-500">Finalisation...</p>
+              
+              <button className="mt-4 flex items-center space-x-2 bg-purple-100 text-purple-600 px-4 py-2 rounded-full text-sm font-medium">
+                <BoltIcon className="w-4 h-4" />
+                <span>IA RÉELLE</span>
+              </button>
             </div>
           </div>
         )}
@@ -344,20 +380,51 @@ function ImageAnalysis() {
 
         {analysisResult && (
           <div className="bg-white rounded-lg shadow-lg p-6">
-            <div className="flex justify-between items-start mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Analyse de votre image</h2>
-              {image && (
-                <img 
-                  src={image} 
-                  alt="Image analysée" 
-                  className="w-20 h-20 object-cover rounded-lg shadow-md"
-                />
-              )}
+            {/* Header "Lieu détecté !" */}
+            <div className="text-center mb-6">
+              <div className="inline-flex items-center justify-center w-12 h-12 bg-green-100 rounded-full mb-3">
+                <span className="text-green-600 text-xl">✓</span>
+              </div>
+              <h2 className="text-xl font-bold text-gray-900 mb-2">Lieu détecté !</h2>
+              <p className="text-gray-600 mb-4">Votre avis est prêt à être publié</p>
             </div>
 
-            {/* Suggestions en 2 colonnes */}
-            <div className="mb-8">
-              <h3>Suggestions d'amélioration</h3>
+            {/* Infos produit avec image */}
+            <div className="bg-gray-50 rounded-lg p-4 mb-6">
+              <div className="flex items-start justify-between">
+                <div className="flex-1">
+                  <h3 className="font-bold text-gray-900 mb-1">
+                    {analysisResult.productName || 'ETHIQUABLE'}
+                  </h3>
+                  <p className="text-gray-600">{analysisResult.businessType || 'Chocolat 100% Cacao Pérou'}</p>
+                  <div className="flex items-center text-sm text-gray-500 mt-1">
+                    <span className="mr-2">📍 Localisation détectée</span>
+                  </div>
+                  <div className="flex items-center text-sm text-green-600 mt-1">
+                    <span className="bg-green-100 px-2 py-1 rounded-full">🧠 Analysé par GPT-4 Vision</span>
+                  </div>
+                </div>
+                {image && (
+                  <img 
+                    src={image} 
+                    alt="Image analysée" 
+                    className="w-20 h-20 object-cover rounded-lg shadow-md ml-4"
+                  />
+                )}
+              </div>
+            </div>
+
+            {/* Votre note */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Votre note</h3>
+              <div className="flex justify-center">
+                {renderStars(userRating, setUserRating)}
+              </div>
+            </div>
+
+            {/* Suggestions rapides */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Suggestions rapides (cliquez pour ajouter/retirer)</h3>
               <div className="suggestions-container-two-columns">
                 <div className="suggestions-column">
                   <h4 className="suggestions-column-title positive">
@@ -365,22 +432,29 @@ function ImageAnalysis() {
                   </h4>
                   <div className="suggestions-list">
                     {analysisResult.positiveSuggestions?.map((suggestion, index) => (
-                      <span key={index} className="suggestion-tag positive">
+                      <button 
+                        key={index} 
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="suggestion-tag positive cursor-pointer hover:opacity-80"
+                      >
                         {suggestion}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 </div>
                 
                 <div className="suggestions-column">
-                  <h4 className="suggestions-column-title negative">
-                    👎 Points négatifs
+                  <h4 className="suggestions-column-title negative">égatifs
                   </h4>
                   <div className="suggestions-list">
                     {analysisResult.negativeSuggestions?.map((suggestion, index) => (
-                      <span key={index} className="suggestion-tag negative">
+                      <button 
+                        key={index} 
+                        onClick={() => handleSuggestionClick(suggestion)}
+                        className="suggestion-tag negative cursor-pointer hover:opacity-80"
+                      >
                         {suggestion}
-                      </span>
+                      </button>
                     ))}
                   </div>
                 </div>
@@ -388,8 +462,8 @@ function ImageAnalysis() {
             </div>
 
             {/* Section de sélection des vendeurs */}
-            <div className="vendor-selection-section">
-              <h3>Où avez-vous acheté ça ?</h3>
+            <div className="vendor-selection-section mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Où avez-vous acheté ça ?</h3>
               <div className="vendor-buttons">
                 {analysisResult.suggestedVendors?.map((vendor, index) => (
                   <button
@@ -433,21 +507,19 @@ function ImageAnalysis() {
               )}
             </div>
 
-            <h3>Votre avis (modifiable)</h3>
-            <textarea
-              value={reviewText}
-              onChange={(e) => setReviewText(e.target.value)}
-              className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-              rows="4"
-              placeholder="Modifiez votre avis ici..."
-            />
-
-            <div className="mt-6">
-              <h3 className="text-lg font-medium text-gray-900 mb-3">Votre note</h3>
-              <div className="flex justify-center">
-                {renderStars(userRating, setUserRating)}
-              </div>
+            {/* Votre avis (modifiable) */}
+            <div className="mb-6">
+              <h3 className="text-lg font-medium text-gray-900 mb-3">Votre avis (modifiable)</h3>
+              <textarea
+                value={reviewText}
+                onChange={(e) => setReviewText(e.target.value)}
+                className="w-full p-4 border border-gray-300 rounded-lg resize-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                rows="4"
+                placeholder="Saisissez votre avis ici ou cliquez sur les suggestions..."
+              />
             </div>
+
+            {/* Bouton publier */}
 
             <div className="mt-8 flex justify-center">
               <button

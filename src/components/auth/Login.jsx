@@ -30,11 +30,16 @@ const Login = () => {
     setLoading(true);
     setError('');
 
+    console.log('Tentative de connexion avec:', formData.email);
+
     try {
       const response = await authService.login(formData.email, formData.password);
+      console.log('Réponse de connexion:', response);
       login(response.user);
+      console.log('Redirection vers /');
       navigate('/');
     } catch (err) {
+      console.error('Erreur de connexion:', err);
       setError(err.message);
     } finally {
       setLoading(false);
@@ -76,7 +81,7 @@ const Login = () => {
             {/* Email */}
             <div>
               <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-                Adresse email
+                Username ou Email
               </label>
               <div className="mt-1 relative">
                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -85,13 +90,13 @@ const Login = () => {
                 <input
                   id="email"
                   name="email"
-                  type="email"
-                  autoComplete="email"
+                  type="text"
+                  autoComplete="username"
                   required
                   value={formData.email}
                   onChange={handleChange}
                   className="appearance-none block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md placeholder-gray-400 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm"
-                  placeholder="votre@email.com"
+                  placeholder="username ou email"
                 />
               </div>
             </div>

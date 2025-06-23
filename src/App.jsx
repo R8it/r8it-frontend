@@ -5,7 +5,7 @@ import ProtectedRoute from './components/auth/ProtectedRoute';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import Profile from './components/auth/Profile';
-import ImageAnalysis from './components/ImageAnalysis';
+import ImageAnalysisSimple from './components/ImageAnalysisSimple';
 import './App.css';
 
 function App() {
@@ -42,10 +42,10 @@ function App() {
               } 
             />
             
-            {/* Route principale - accessible à tous */}
+            {/* Route principale - version simple sans auth */}
             <Route 
               path="/" 
-              element={<ImageAnalysis />} 
+              element={<ImageAnalysisSimple />} 
             />
           </Routes>
         </div>
