@@ -13,6 +13,9 @@ function App() {
   const [showInitialScreen, setShowInitialScreen] = useState(true);
   const [userRating, setUserRating] = useState(0);
   const [showPublishedPopup, setShowPublishedPopup] = useState(false); // New state for popup
+  const [selectedVendor, setSelectedVendor] = useState(''); // Vendeur sélectionné
+  const [customVendor, setCustomVendor] = useState(''); // Vendeur personnalisé
+  const [showCustomVendorInput, setShowCustomVendorInput] = useState(false); // Affichage du champ personnalisé
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -25,6 +28,9 @@ function App() {
         setReviewText('');
         setShowInitialScreen(false);
         setUserRating(0); // Reset rating
+        setSelectedVendor(''); // Reset vendor selection
+        setCustomVendor(''); // Reset custom vendor
+        setShowCustomVendorInput(false); // Hide custom vendor input
         analyzeImage(reader.result); // Automatically analyze after image selection
       };
       reader.readAsDataURL(file);
@@ -84,7 +90,33 @@ function App() {
       setReviewText('');
       setShowInitialScreen(true);
       setUserRating(0);
+      setSelectedVendor(''); // Reset vendor selection
+      setCustomVendor(''); // Reset custom vendor
+      setShowCustomVendorInput(false); // Hide custom vendor input
     }, 3000); // 3 seconds
+  };
+
+  // Fonctions de gestion des vendeurs
+  const handleVendorSelect = (vendor) => {
+    if (vendor === 'Autre') {
+      setShowCustomVendorInput(true);
+      setSelectedVendor('');
+    } else {
+      setSelectedVendor(vendor);
+      setShowCustomVendorInput(false);
+      setCustomVendor('');
+    }
+  };
+
+  const handleCustomVendorChange = (e) => {
+    setCustomVendor(e.target.value);
+  };
+
+  const handleCustomVendorSubmit = () => {
+    if (customVendor.trim()) {
+      setSelectedVendor(customVendor.trim());
+      setShowCustomVendorInput(false);
+    }
   };
 
   return (
@@ -223,6 +255,52 @@ function App() {
                     </span>
                   ))}
                 </div>
+              </div>
+
+              <h3>Où avez-vous acheté ça ?</h3>
+              <div className="vendor-selection-container">
+                <div className="vendor-suggestions">
+                  {analysisResult.suggestedVendors && analysisResult.suggestedVendors.map((vendor, index) => (
+                    <button 
+                      key={`vendor-${index}`} 
+                      className={`vendor-button ${selectedVendor === vendor ? 'selected' : ''}`}
+                      onClick={() => handleVendorSelect(vendor)}
+                    >
+                      {vendor}
+                    </button>
+                  ))}
+                  <button 
+                    className={`vendor-button other-button ${showCustomVendorInput ? 'selected' : ''}`}
+                    onClick={() => handleVendorSelect('Autre')}
+                  >
+                    Autre
+                  </button>
+                </div>
+                
+                {showCustomVendorInput && (
+                  <div className="custom-vendor-input">
+                    <input
+                      type="text"
+                      value={customVendor}
+                      onChange={handleCustomVendorChange}
+                      placeholder="Saisissez le nom du vendeur..."
+                      className="custom-vendor-field"
+                    />
+                    <button 
+                      onClick={handleCustomVendorSubmit}
+                      className="custom-vendor-submit"
+                    >
+                      Valider
+                    </button>
+                  </div>
+                )}
+                
+                {selectedVendor && (
+                  <div className="selected-vendor-display">
+                    <span className="selected-vendor-label">Vendeur sélectionné :</span>
+                    <span className="selected-vendor-name">{selectedVendor}</span>
+                  </div>
+                )}
               </div>
 
               <h3>Votre avis (modifiable)</h3>
